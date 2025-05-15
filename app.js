@@ -67,10 +67,27 @@ const App = () => {
     }
 
     try {
-      // Using mailto link to open the user's email client
-      window.location.href = `mailto:hari@owly.kids?subject=Waitlist Signup&body=Please add ${email} to the Owly Studio waitlist.`;
+      // Show loading state
+      setSubmitStatus({ message: 'Adding you to the waitlist...', error: false });
       
-      // Clear the form and show success message
+      // Replace this URL with your Google Apps Script web app URL after deployment
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzm4GxT_Z1TcNng_z2pq4DFpVhGXB2p7RQi67Lg8lsYyrc4iRogDzddW4X17WQA5_-V/exec';
+      
+      // Submit to Google Sheet
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: email,
+          source: 'Owly Studio Waitlist' 
+        }),
+        mode: 'no-cors' // Important for CORS issues with Google Scripts
+      });
+      
+      // Since no-cors mode doesn't give us response details,
+      // we'll assume success if no error is thrown
       setEmail('');
       setSubmitStatus({ message: 'Thank you for joining our waitlist!', error: false });
       
@@ -81,6 +98,7 @@ const App = () => {
       }, 3000);
       
     } catch (error) {
+      console.error('Error submitting form:', error);
       setSubmitStatus({ message: 'Something went wrong. Please try again.', error: true });
     }
   };
@@ -519,11 +537,6 @@ const App = () => {
               </button>
               
               <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-black border border-[#222222]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
                 <h3 className="text-2xl font-semibold mb-2 text-white">Get Early Access</h3>
                 <p className="text-white opacity-80">Join the waitlist and be among the first to experience Owly Studio.</p>
               </div>
