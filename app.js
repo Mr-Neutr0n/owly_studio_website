@@ -6,7 +6,7 @@ const App = () => {
   const [email, setEmail] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ message: '', error: false });
-  const [activeTab, setActiveTab] = useState('create');
+  const [activeTab, setActiveTab] = useState('marketing');
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
@@ -259,19 +259,19 @@ const App = () => {
             <div className="mb-6 flex border-b border-[#222222]">
               <button 
                 onClick={() => setActiveTab('marketing')}
-                className={`px-4 py-2 font-medium ${activeTab === 'create' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-white opacity-70 hover:opacity-100'}`}
+                className={`px-4 py-2 font-medium ${activeTab === 'marketing' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-white opacity-70 hover:opacity-100'}`}
               >
                 Marketing
               </button>
               <button 
                 onClick={() => setActiveTab('education')}
-                className={`px-4 py-2 font-medium ${activeTab === 'customize' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-white opacity-70 hover:opacity-100'}`}
+                className={`px-4 py-2 font-medium ${activeTab === 'education' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-white opacity-70 hover:opacity-100'}`}
               >
                 Education
               </button>
               <button 
                 onClick={() => setActiveTab('fantasy')}
-                className={`px-4 py-2 font-medium ${activeTab === 'export' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-white opacity-70 hover:opacity-100'}`}
+                className={`px-4 py-2 font-medium ${activeTab === 'fantasy' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-white opacity-70 hover:opacity-100'}`}
               >
                 Fantasy
               </button>
@@ -289,18 +289,25 @@ const App = () => {
                 {activeTab === 'marketing' && (
                   <div className="grid md:grid-cols-2 gap-8 items-center">
                     <div>
-                      <h3 className="text-2xl font-semibold mb-4 text-white">Describe Your Vision</h3>
+                      <h3 className="text-2xl font-semibold mb-4 text-white">Create Engaging Marketing Videos</h3>
                       <p className="text-white opacity-80 mb-4">
-                        Simply describe what you want to create and our AI will generate the perfect video based on your prompt.
+                        Generate branded promotional content that converts viewers into customers. Perfect for product launches, social ads, and campaigns.
                       </p>
                       <div className="bg-black border border-[#222222] rounded-lg p-4">
                         <p className="text-white opacity-80 italic">
-                          "Create a 2-minute product showcase for our new fitness app with energetic music and outdoor scenes"
+                          "Create a 15s coca cola commercial with a catchy jingle and a happy ending"
                         </p>
                       </div>
                     </div>
-                    <div className="bg-black h-64 rounded-lg flex items-center justify-center">
-                      <p className="text-white opacity-50 font-medium">Demo Video Placeholder</p>
+                    <div className="bg-black rounded-lg overflow-hidden">
+                      <video 
+                        src="/marketing_demo.mp4" 
+                        className="w-full h-80 object-cover"
+                        autoPlay
+                        muted
+                        playsInline
+                        loop
+                      />
                     </div>
                   </div>
                 )}
@@ -308,18 +315,25 @@ const App = () => {
                 {activeTab === 'education' && (
                   <div className="grid md:grid-cols-2 gap-8 items-center">
                     <div>
-                      <h3 className="text-2xl font-semibold mb-4 text-white">Describe Your Vision</h3>
+                      <h3 className="text-2xl font-semibold mb-4 text-white">Craft Educational Content</h3>
                       <p className="text-white opacity-80 mb-4">
-                        Simply describe what you want to create and our AI will generate the perfect video based on your prompt.
+                        Transform complex concepts into clear, engaging learning materials. Ideal for online courses, training videos, and explainers.
                       </p>
                       <div className="bg-black border border-[#222222] rounded-lg p-4">
                         <p className="text-white opacity-80 italic">
-                          "Create a 2-minute product showcase for our new fitness app with energetic music and outdoor scenes"
+                          "Create a video about jungle safari with a the family"
                         </p>
                       </div>
                     </div>
-                    <div className="bg-black h-64 rounded-lg flex items-center justify-center">
-                      <p className="text-white opacity-50 font-medium">Demo Video Placeholder</p>
+                    <div className="bg-black rounded-lg overflow-hidden">
+                      <video 
+                        src="/education_demo.mp4" 
+                        className="w-full h-80 object-cover"
+                        autoPlay
+                        muted
+                        playsInline
+                        loop
+                      />
                     </div>
                   </div>
                 )}
@@ -327,18 +341,25 @@ const App = () => {
                 {activeTab === 'fantasy' && (
                   <div className="grid md:grid-cols-2 gap-8 items-center">
                     <div>
-                      <h3 className="text-2xl font-semibold mb-4 text-white">Describe Your Vision</h3>
+                      <h3 className="text-2xl font-semibold mb-4 text-white">Unleash Your Imagination</h3>
                       <p className="text-white opacity-80 mb-4">
-                        Simply describe what you want to create and our AI will generate the perfect video based on your prompt.
+                        Bring your creative stories to life with cinematic visuals. Perfect for entertainment content, storytelling, and creative projects.
                       </p>
                       <div className="bg-black border border-[#222222] rounded-lg p-4">
                         <p className="text-white opacity-80 italic">
-                          "Create a 2-minute product showcase for our new fitness app with energetic music and outdoor scenes"
+                          "Create a 1 minute fantasy video about a female viking princess who goes on an adventure with a wolf"
                         </p>
                       </div>
                     </div>
-                    <div className="bg-black h-64 rounded-lg flex items-center justify-center">
-                      <p className="text-white opacity-50 font-medium">Demo Video Placeholder</p>
+                    <div className="bg-black rounded-lg overflow-hidden">
+                      <video 
+                        src="/fantasy_demo.mp4" 
+                        className="w-full h-80 object-cover"
+                        autoPlay
+                        muted
+                        playsInline
+                        loop
+                      />
                     </div>
                   </div>
                 )}
