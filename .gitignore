@@ -1,10 +1,15 @@
+.gitignore
+
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
+package-lock.json
+yarn.lock
 
 # testing
 /coverage
+/.nyc_output
 
 # next.js
 /.next/
@@ -12,18 +17,41 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+Thumbs.db
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# local env files
-.env*.local
+.pnpm-debug.log*
 
 # vercel
-.vercel 
+.vercel
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# cache and temp files
+.cache/
+.temp/
+.tmp/
+tmp/
+
+# System files
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db 
