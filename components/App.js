@@ -78,12 +78,32 @@ const App = () => {
     
     const scrollContainer = carouselRef.current;
     
-    // Mouse wheel scrolling - make horizontal
+    // Mouse wheel scrolling - improved to allow vertical scrolling when needed
     const handleWheel = (e) => {
-      if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
-        e.preventDefault();
-        scrollContainer.scrollLeft += e.deltaY;
+      // Allow natural vertical scrolling in these cases:
+      // 1. When explicitly scrolling down with high intensity
+      // 2. When carousel is at its leftmost position and trying to scroll left
+      // 3. When carousel is at its rightmost position and trying to scroll right
+      const isAtLeftEdge = scrollContainer.scrollLeft <= 0;
+      const isAtRightEdge = scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10;
+      const isScrollingDown = e.deltaY > 0;
+      const isScrollingHorizontally = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      const isHighIntensityVerticalScroll = Math.abs(e.deltaY) > 80;
+      
+      // Allow natural (vertical) scrolling when:
+      if (
+        (isScrollingDown && isHighIntensityVerticalScroll) || // Explicit downward scroll
+        (isAtLeftEdge && e.deltaY < 0) || // At left edge and trying to scroll more left
+        (isAtRightEdge && e.deltaY > 0) || // At right edge and trying to scroll more right
+        isScrollingHorizontally // Already scrolling horizontally
+      ) {
+        // Don't prevent default to allow natural page scrolling
+        return;
       }
+      
+      // Otherwise, convert to horizontal scroll
+      e.preventDefault();
+      scrollContainer.scrollLeft += e.deltaY;
       updateActiveIndex();
     };
     
@@ -348,6 +368,33 @@ const App = () => {
             />
           ))}
         </div>
+        
+        {/* Vertical Scroll Indicator */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 0.8 }}
+          className="absolute left-1/2 bottom-6 transform -translate-x-1/2 flex flex-col items-center text-white/40 cursor-pointer"
+          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+        >
+          <span className="text-sm mb-2">Scroll Down</span>
+          <svg 
+            className="animate-bounce" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              d="M12 4L12 20M12 20L18 14M12 20L6 14" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        </motion.div>
         
         {/* Scroll Indicator */}
         <motion.div 
