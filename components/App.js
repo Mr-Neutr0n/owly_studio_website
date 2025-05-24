@@ -130,12 +130,17 @@ const App = () => {
     const updateActiveIndex = () => {
       if (!scrollContainer) return;
       
-      const itemWidth = scrollContainer.querySelector('.carousel-item')?.offsetWidth || 0;
       const scrollPosition = scrollContainer.scrollLeft;
+      const containerWidth = scrollContainer.clientWidth;
+      const totalWidth = scrollContainer.scrollWidth;
+      
+      // Calculate index based on scroll percentage
+      const scrollPercentage = scrollPosition / (totalWidth - containerWidth);
       const index = Math.min(
-        Math.floor(scrollPosition / (itemWidth * 0.8)),
+        Math.floor(scrollPercentage * carouselContent.length),
         carouselContent.length - 1
       );
+      
       setActiveIndex(index);
     };
     
@@ -197,68 +202,135 @@ const App = () => {
     }));
   }, [controls]);
 
-  // Generate carousel content (placeholder for now)
+  // New carousel content with size and row information
   const carouselContent = [
-    { title: "Immersive Videos", description: "Interactive storytelling", bgColor: "#240046" },
-    { title: "Fashion Campaigns", description: "Elegant brand stories", bgColor: "#3C096C" },
-    { title: "Product Showcases", description: "Highlight your innovations", bgColor: "#5A189A" },
-    { title: "Nature Documentaries", description: "Experience the wild", bgColor: "#7B2CBF" },
-    { title: "Urban Explorations", description: "Cities from new perspectives", bgColor: "#9D4EDD" },
-    { title: "Abstract Art", description: "Visual experiments", bgColor: "#C77DFF" }
+    // First row
+    { 
+      title: "Nature",
+      description: "Lush green landscapes",
+      size: "small",
+      row: 1,
+      bgColor: "#1e6643",
+      bgImage: "url('/green-leaf.jpg')"
+    },
+    { 
+      title: "Immersive Videos", 
+      description: "Interactive storytelling", 
+      size: "medium",
+      row: 1,
+      bgColor: "#4259a3",
+      bgImage: "url('/head-fishbowl.jpg')"
+    },
+    { 
+      title: "Silhouettes", 
+      description: "Dramatic contrasts", 
+      size: "large",
+      row: 1, 
+      bgColor: "#404347",
+      bgImage: "url('/person-fish.jpg')"
+    },
+    { 
+      title: "Clouds", 
+      description: "Ethereal atmospheres", 
+      size: "small",
+      row: 1, 
+      bgColor: "#a7bbc5",
+      bgImage: "url('/clouds.jpg')"
+    },
+    // Second row
+    { 
+      title: "Pink Fluff", 
+      description: "Soft cotton candy aesthetics", 
+      size: "medium",
+      row: 2, 
+      bgColor: "#f9c5d1",
+      bgImage: "url('/pink-cats.jpg')"
+    },
+    { 
+      title: "Portraits", 
+      description: "Capturing human emotions", 
+      size: "small",
+      row: 2, 
+      bgColor: "#6a7d7f",
+      bgImage: "url('/profile-girl.jpg')"
+    },
+    { 
+      title: "Fashion", 
+      description: "Bold style statements", 
+      size: "large",
+      row: 2, 
+      bgColor: "#f2703c",
+      bgImage: "url('/yellow-hat.jpg')"
+    },
+    { 
+      title: "Meadows", 
+      description: "Peaceful countryside", 
+      size: "small",
+      row: 2, 
+      bgColor: "#7cad70",
+      bgImage: "url('/meadow.jpg')"
+    }
   ];
 
-  // Generate carousel items with better styling
-  const carouselItems = carouselContent.map((item, i) => (
-    <motion.div
-      key={i}
-      custom={i}
-      initial={{ opacity: 0, y: 50 }}
-      animate={controls}
-      className={`carousel-item flex-shrink-0 w-[90vw] md:w-[80vw] lg:w-[60vw] h-[70vh] rounded-3xl relative overflow-hidden ${activeIndex === i ? 'scale-100 z-10' : 'scale-[0.92] opacity-80'}`}
-      style={{
-        backgroundColor: item.bgColor,
-        marginRight: '4vw',
-        transition: 'all 0.4s ease-out',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
-      }}
-    >
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-black/40"></div>
+  // Generate masonry grid carousel items
+  const renderCarouselItems = () => {
+    // Split by rows
+    const firstRow = carouselContent.filter(item => item.row === 1);
+    const secondRow = carouselContent.filter(item => item.row === 2);
+    
+    const generateItems = (items) => {
+      return items.map((item, i) => {
+        // Set dynamic widths based on item size
+        const getWidth = () => {
+          switch(item.size) {
+            case 'small': return 'w-[30vw] sm:w-[28vw] md:w-[22vw] lg:w-[18vw]';
+            case 'medium': return 'w-[36vw] sm:w-[34vw] md:w-[28vw] lg:w-[24vw]';
+            case 'large': return 'w-[50vw] sm:w-[45vw] md:w-[38vw] lg:w-[34vw]';
+            default: return 'w-[30vw] sm:w-[25vw] md:w-[20vw]';
+          }
+        };
         
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-20">
-          {Array.from({ length: 10 }).map((_, idx) => (
-            <div 
-              key={idx} 
-              className="absolute rounded-full" 
-              style={{
-                width: Math.random() * 300 + 50 + 'px',
-                height: Math.random() * 300 + 50 + 'px', 
-                left: Math.random() * 100 + '%',
-                top: Math.random() * 100 + '%',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                transform: `translate(-50%, -50%)`
-              }}
-            />
-          ))}
-        </div>
-        
-        <span className="text-[120px] font-bold text-white/5">{i + 1}</span>
+        return (
+          <motion.div
+            key={`${item.row}-${i}`}
+            custom={i}
+            initial={{ opacity: 0, y: 30 }}
+            animate={controls}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className={`carousel-item flex-shrink-0 h-[32vh] rounded-xl relative overflow-hidden mx-2 ${getWidth()}`}
+            style={{
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+              backgroundImage: item.bgImage || 'none',
+              backgroundColor: item.bgColor,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/60"></div>
+            
+            <div className="absolute bottom-0 left-0 w-full p-4 z-10">
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 + (i * 0.1), duration: 0.8 }}
+              >
+                <h3 className="text-xl sm:text-2xl font-bold text-white">{item.title}</h3>
+                <p className="text-white/80 text-sm sm:text-base">{item.description}</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        );
+      });
+    };
+    
+    // Return both rows of items
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-2 items-center">{generateItems(firstRow)}</div>
+        <div className="flex gap-2 items-center">{generateItems(secondRow)}</div>
       </div>
-      
-      <div className="absolute bottom-0 left-0 w-full p-10 z-10">
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 + (i * 0.1), duration: 0.8 }}
-          className="max-w-xl"
-        >
-          <h3 className="text-4xl md:text-5xl font-bold text-white mb-3">{item.title}</h3>
-          <p className="text-white/80 text-xl">{item.description}</p>
-        </motion.div>
-      </div>
-    </motion.div>
-  ));
+    );
+  };
 
   // Animation for the navigation dots
   const dotVariants = {
@@ -311,44 +383,24 @@ const App = () => {
         </div>
       </motion.nav>
 
-      {/* Hero Section with Horizontal Carousel */}
-      <section className="relative min-h-screen">
-        {/* Hero Text */}
-        <div className="px-8 pt-32 pb-12 max-w-6xl mx-auto">
-          <motion.h1 
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.6, 0.05, -0.01, 0.9] }}
-            className="header-text text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight max-w-5xl mb-8"
-          >
-            Transform <span className="text-gradient-1">ideas</span> into <span className="text-gradient-2">experiences</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.6, 0.05, -0.01, 0.9] }}
-            className="header-text text-xl md:text-2xl text-white/70 max-w-2xl"
-          >
-            Create stunning videos with AI. One prompt, endless possibilities.
-          </motion.p>
-        </div>
-        
-        {/* Horizontal Carousel with improved scrolling */}
+      {/* Hero Section with Masonry Grid Carousel */}
+      <section className="relative">
+        {/* Horizontal Masonry Grid Carousel */}
         <div 
           ref={carouselRef}
-          className="overflow-x-auto hide-scrollbar pl-8 flex py-10 cursor-grab active:cursor-grabbing"
+          className="overflow-x-auto hide-scrollbar px-6 py-4 cursor-grab active:cursor-grabbing"
           style={{ 
             scrollSnapType: 'x mandatory', 
             WebkitOverflowScrolling: 'touch',
             scrollBehavior: 'smooth'
           }}
         >
-          {carouselItems}
+          {renderCarouselItems()}
         </div>
         
-        {/* Navigation Dots - made more prominent */}
-        <div className="flex justify-center space-x-3 mt-8 mb-16">
-          {carouselContent.map((_, i) => (
+        {/* Navigation Dots */}
+        <div className="flex justify-center space-x-3 mt-6 mb-10">
+          {Array.from({ length: Math.ceil(carouselContent.length / 4) }).map((_, i) => (
             <motion.button
               key={i}
               variants={dotVariants}
@@ -357,10 +409,13 @@ const App = () => {
               className={`w-4 h-4 rounded-full ${activeIndex === i ? 'bg-white' : 'bg-white/30'}`}
               onClick={() => {
                 if (carouselRef.current) {
-                  const itemWidth = carouselRef.current.querySelector('.carousel-item').offsetWidth;
-                  const margin = parseInt(window.getComputedStyle(carouselRef.current.querySelector('.carousel-item')).marginRight);
+                  const scrollWidth = carouselRef.current.scrollWidth;
+                  const viewportWidth = carouselRef.current.clientWidth;
+                  const scrollableWidth = scrollWidth - viewportWidth;
+                  const segmentWidth = scrollableWidth / (Math.ceil(carouselContent.length / 4) - 1 || 1);
+                  
                   carouselRef.current.scrollTo({
-                    left: i * (itemWidth + margin),
+                    left: i * segmentWidth,
                     behavior: 'smooth'
                   });
                 }
@@ -374,14 +429,14 @@ const App = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5, duration: 0.8 }}
-          className="absolute left-1/2 bottom-6 transform -translate-x-1/2 flex flex-col items-center text-white/40 cursor-pointer"
+          className="absolute left-1/2 bottom-2 transform -translate-x-1/2 flex flex-col items-center text-white/40 cursor-pointer"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
-          <span className="text-sm mb-2">Scroll Down</span>
+          <span className="text-sm mb-1">Scroll Down</span>
           <svg 
             className="animate-bounce" 
-            width="24" 
-            height="24" 
+            width="20" 
+            height="20" 
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
@@ -394,29 +449,6 @@ const App = () => {
               strokeLinejoin="round"
             />
           </svg>
-        </motion.div>
-        
-        {/* Scroll Indicator */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 1 }}
-          className="hidden md:flex absolute bottom-8 right-8 items-center text-white/50"
-        >
-          <span className="mr-2">Scroll</span>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17 12L7 22M17 12L7 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </motion.div>
-        
-        {/* Mobile Scroll Instructions */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="md:hidden text-center text-white/50 text-sm mt-4"
-        >
-          Swipe left to explore more
         </motion.div>
       </section>
     </div>
