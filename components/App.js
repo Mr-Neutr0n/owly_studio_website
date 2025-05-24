@@ -237,6 +237,22 @@ const App = () => {
       bgColor: "#a7bbc5",
       bgImage: "url('/clouds.jpg')"
     },
+    { 
+      title: "Architecture", 
+      description: "Modern structures", 
+      size: "medium",
+      row: 1, 
+      bgColor: "#34495e",
+      bgImage: "url('/architecture.jpg')"
+    },
+    { 
+      title: "Ocean Views", 
+      description: "Calming seascapes", 
+      size: "large",
+      row: 1, 
+      bgColor: "#1a5276",
+      bgImage: "url('/ocean.jpg')"
+    },
     // Second row
     { 
       title: "Pink Fluff", 
@@ -269,6 +285,22 @@ const App = () => {
       row: 2, 
       bgColor: "#7cad70",
       bgImage: "url('/meadow.jpg')"
+    },
+    { 
+      title: "Urban Life", 
+      description: "City vibes and motion", 
+      size: "medium",
+      row: 2, 
+      bgColor: "#2c3e50",
+      bgImage: "url('/urban.jpg')"
+    },
+    { 
+      title: "Abstract", 
+      description: "Shapes and colors", 
+      size: "large",
+      row: 2, 
+      bgColor: "#8e44ad",
+      bgImage: "url('/abstract.jpg')"
     }
   ];
 
@@ -280,13 +312,13 @@ const App = () => {
     
     const generateItems = (items) => {
       return items.map((item, i) => {
-        // Set dynamic widths based on item size
+        // Set dynamic widths based on item size - increasing widths to make more scrollable content
         const getWidth = () => {
           switch(item.size) {
-            case 'small': return 'w-[30vw] sm:w-[28vw] md:w-[22vw] lg:w-[18vw]';
-            case 'medium': return 'w-[36vw] sm:w-[34vw] md:w-[28vw] lg:w-[24vw]';
-            case 'large': return 'w-[50vw] sm:w-[45vw] md:w-[38vw] lg:w-[34vw]';
-            default: return 'w-[30vw] sm:w-[25vw] md:w-[20vw]';
+            case 'small': return 'w-[35vw] sm:w-[32vw] md:w-[28vw] lg:w-[25vw]';
+            case 'medium': return 'w-[45vw] sm:w-[42vw] md:w-[38vw] lg:w-[35vw]';
+            case 'large': return 'w-[60vw] sm:w-[55vw] md:w-[48vw] lg:w-[42vw]';
+            default: return 'w-[35vw] sm:w-[32vw] md:w-[28vw]';
           }
         };
         
@@ -296,7 +328,7 @@ const App = () => {
             custom={i}
             initial={{ opacity: 0, y: 30 }}
             animate={controls}
-            className={`carousel-item flex-shrink-0 h-[32vh] rounded-xl relative overflow-hidden mx-2 ${getWidth()}`}
+            className={`carousel-item flex-shrink-0 h-[32vh] rounded-xl relative overflow-hidden mx-3 ${getWidth()}`}
             style={{
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
               backgroundImage: item.bgImage || 'none',
@@ -324,9 +356,9 @@ const App = () => {
     
     // Return both rows of items
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex gap-2 items-center">{generateItems(firstRow)}</div>
-        <div className="flex gap-2 items-center">{generateItems(secondRow)}</div>
+      <div className="flex flex-col gap-6">
+        <div className="flex gap-3 items-center">{generateItems(firstRow)}</div>
+        <div className="flex gap-3 items-center">{generateItems(secondRow)}</div>
       </div>
     );
   };
