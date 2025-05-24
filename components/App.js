@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 
@@ -7,6 +7,8 @@ const App = () => {
   const secondCarouselRef = useRef(null);
   const containerRef = useRef(null);
   const mouseTrailerRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
 
   // Mouse trailer effect
   useEffect(() => {
@@ -51,33 +53,82 @@ const App = () => {
     };
   }, []);
 
-  // Smooth horizontal scrolling with mouse wheel
+  // Improved horizontal scrolling with drag functionality
   useEffect(() => {
     const containers = [firstCarouselRef.current, secondCarouselRef.current];
     
-    const handleWheel = (container, evt) => {
-      if (evt.deltaY !== 0) {
-        if (container.scrollWidth > container.clientWidth) {
-          evt.preventDefault();
-          container.scrollLeft += evt.deltaY * 2;
-        }
-      }
-    };
-    
     containers.forEach(container => {
-      if (container) {
-        container.addEventListener('wheel', (evt) => handleWheel(container, evt), { passive: false });
-      }
-    });
-    
-    return () => {
-      containers.forEach(container => {
-        if (container) {
-          container.removeEventListener('wheel', (evt) => handleWheel(container, evt));
+      if (!container) return;
+      
+      // Mouse wheel scrolling - improved to allow vertical scrolling when needed
+      const handleWheel = (e) => {
+        // Allow natural vertical scrolling in these cases:
+        // 1. When explicitly scrolling down with high intensity
+        // 2. When carousel is at its leftmost position and trying to scroll left
+        // 3. When carousel is at its rightmost position and trying to scroll right
+        const isAtLeftEdge = container.scrollLeft <= 0;
+        const isAtRightEdge = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10;
+        const isScrollingDown = e.deltaY > 0;
+        const isScrollingHorizontally = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+        const isHighIntensityVerticalScroll = Math.abs(e.deltaY) > 80;
+        
+        // Allow natural (vertical) scrolling when:
+        if (
+          (isScrollingDown && isHighIntensityVerticalScroll) || // Explicit downward scroll
+          (isAtLeftEdge && e.deltaY < 0) || // At left edge and trying to scroll more left
+          (isAtRightEdge && e.deltaY > 0) || // At right edge and trying to scroll more right
+          isScrollingHorizontally // Already scrolling horizontally
+        ) {
+          // Don't prevent default to allow natural page scrolling
+          return;
         }
-      });
-    };
-  }, []);
+        
+        // Otherwise, convert to horizontal scroll
+        e.preventDefault();
+        container.scrollLeft += e.deltaY;
+      };
+      
+      // Touch and mouse drag with improved sensitivity
+      const handleTouchStart = (e) => {
+        setIsDragging(true);
+        setStartX(e.clientX || (e.touches && e.touches[0].clientX) || 0);
+      };
+      
+      const handleTouchMove = (e) => {
+        if (!isDragging) return;
+        const x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+        const walk = (startX - x) * 1.5; // Increased sensitivity
+        container.scrollLeft += walk;
+        setStartX(x);
+      };
+      
+      const handleTouchEnd = () => {
+        setIsDragging(false);
+      };
+      
+      // Add event listeners
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      container.addEventListener('mousedown', handleTouchStart);
+      container.addEventListener('touchstart', handleTouchStart);
+      container.addEventListener('mousemove', handleTouchMove);
+      container.addEventListener('touchmove', handleTouchMove);
+      container.addEventListener('mouseup', handleTouchEnd);
+      container.addEventListener('touchend', handleTouchEnd);
+      container.addEventListener('mouseleave', handleTouchEnd);
+      
+      return () => {
+        // Remove event listeners
+        container.removeEventListener('wheel', handleWheel);
+        container.removeEventListener('mousedown', handleTouchStart);
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('mousemove', handleTouchMove);
+        container.removeEventListener('touchmove', handleTouchMove);
+        container.removeEventListener('mouseup', handleTouchEnd);
+        container.removeEventListener('touchend', handleTouchEnd);
+        container.removeEventListener('mouseleave', handleTouchEnd);
+      };
+    });
+  }, [isDragging, startX]);
 
   // First row carousel items
   const firstRowItems = [
@@ -172,7 +223,7 @@ const App = () => {
         <div className="py-8">
           <div 
             ref={firstCarouselRef}
-            className="flex overflow-x-auto pl-4 sm:pl-6 lg:pl-8 scrollbar-hide" 
+            className="flex overflow-x-auto pl-4 sm:pl-6 lg:pl-8 scrollbar-hide cursor-grab active:cursor-grabbing" 
             style={{ 
               scrollBehavior: 'smooth', 
               WebkitOverflowScrolling: 'touch',
@@ -209,7 +260,7 @@ const App = () => {
         <div className="pb-8">
           <div 
             ref={secondCarouselRef}
-            className="flex overflow-x-auto pl-4 sm:pl-6 lg:pl-8 scrollbar-hide" 
+            className="flex overflow-x-auto pl-4 sm:pl-6 lg:pl-8 scrollbar-hide cursor-grab active:cursor-grabbing" 
             style={{ 
               scrollBehavior: 'smooth', 
               WebkitOverflowScrolling: 'touch',
