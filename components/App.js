@@ -1,22 +1,12 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import React, { useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Head from 'next/head';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const App = () => {
-  const carouselRef = useRef(null);
+  const firstCarouselRef = useRef(null);
+  const secondCarouselRef = useRef(null);
   const containerRef = useRef(null);
   const mouseTrailerRef = useRef(null);
-  const controls = useAnimation();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
 
   // Mouse trailer effect
   useEffect(() => {
@@ -27,30 +17,19 @@ const App = () => {
     
     const handleMouseMove = (e) => {
       // Smooth follow of mouse cursor
-      gsap.to(mouseTrailer, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.2,
-        ease: 'power2.out'
-      });
+      mouseTrailer.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
     };
     
     const handleMouseEnter = () => {
-      gsap.to(mouseTrailer, {
-        width: 60,
-        height: 60,
-        opacity: 0.2,
-        duration: 0.3
-      });
+      mouseTrailer.style.width = '60px';
+      mouseTrailer.style.height = '60px';
+      mouseTrailer.style.opacity = '0.2';
     };
     
     const handleMouseLeave = () => {
-      gsap.to(mouseTrailer, {
-        width: 40,
-        height: 40,
-        opacity: 0.1,
-        duration: 0.3
-      });
+      mouseTrailer.style.width = '40px';
+      mouseTrailer.style.height = '40px';
+      mouseTrailer.style.opacity = '0.1';
     };
     
     // Add event listeners for mouse movements
@@ -72,416 +51,208 @@ const App = () => {
     };
   }, []);
 
-  // Horizontal scroll effect with improved drag functionality
+  // Smooth horizontal scrolling with mouse wheel
   useEffect(() => {
-    if (!carouselRef.current || typeof window === 'undefined') return;
+    const containers = [firstCarouselRef.current, secondCarouselRef.current];
     
-    const scrollContainer = carouselRef.current;
-    
-    // Mouse wheel scrolling - improved to allow vertical scrolling when needed
-    const handleWheel = (e) => {
-      // Allow natural vertical scrolling in these cases:
-      // 1. When explicitly scrolling down with high intensity
-      // 2. When carousel is at its leftmost position and trying to scroll left
-      // 3. When carousel is at its rightmost position and trying to scroll right
-      const isAtLeftEdge = scrollContainer.scrollLeft <= 0;
-      const isAtRightEdge = scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10;
-      const isScrollingDown = e.deltaY > 0;
-      const isScrollingHorizontally = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-      const isHighIntensityVerticalScroll = Math.abs(e.deltaY) > 80;
-      
-      // Allow natural (vertical) scrolling when:
-      if (
-        (isScrollingDown && isHighIntensityVerticalScroll) || // Explicit downward scroll
-        (isAtLeftEdge && e.deltaY < 0) || // At left edge and trying to scroll more left
-        (isAtRightEdge && e.deltaY > 0) || // At right edge and trying to scroll more right
-        isScrollingHorizontally // Already scrolling horizontally
-      ) {
-        // Don't prevent default to allow natural page scrolling
-        return;
+    const handleWheel = (container, evt) => {
+      if (evt.deltaY !== 0) {
+        if (container.scrollWidth > container.clientWidth) {
+          evt.preventDefault();
+          container.scrollLeft += evt.deltaY * 2;
+        }
       }
-      
-      // Otherwise, convert to horizontal scroll
-      e.preventDefault();
-      scrollContainer.scrollLeft += e.deltaY;
-      updateActiveIndex();
     };
     
-    // Touch and mouse drag with improved sensitivity
-    const handleTouchStart = (e) => {
-      setIsDragging(true);
-      setStartX(e.clientX || e.touches[0].clientX);
-    };
-    
-    const handleTouchMove = (e) => {
-      if (!isDragging) return;
-      const x = e.clientX || e.touches[0].clientX;
-      const walk = (startX - x) * 1.5; // Increased sensitivity
-      scrollContainer.scrollLeft += walk;
-      setStartX(x);
-    };
-    
-    const handleTouchEnd = () => {
-      setIsDragging(false);
-      updateActiveIndex();
-    };
-    
-    // Update the active index based on scroll position
-    const updateActiveIndex = () => {
-      if (!scrollContainer) return;
-      
-      const scrollPosition = scrollContainer.scrollLeft;
-      const containerWidth = scrollContainer.clientWidth;
-      const totalWidth = scrollContainer.scrollWidth;
-      
-      // Calculate index based on scroll percentage
-      const scrollPercentage = scrollPosition / (totalWidth - containerWidth);
-      const index = Math.min(
-        Math.floor(scrollPercentage * carouselContent.length),
-        carouselContent.length - 1
-      );
-      
-      setActiveIndex(index);
-    };
-    
-    // Add event listeners
-    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
-    scrollContainer.addEventListener('mousedown', handleTouchStart);
-    scrollContainer.addEventListener('touchstart', handleTouchStart);
-    scrollContainer.addEventListener('mousemove', handleTouchMove);
-    scrollContainer.addEventListener('touchmove', handleTouchMove);
-    scrollContainer.addEventListener('mouseup', handleTouchEnd);
-    scrollContainer.addEventListener('touchend', handleTouchEnd);
-    scrollContainer.addEventListener('mouseleave', handleTouchEnd);
-    scrollContainer.addEventListener('scroll', updateActiveIndex);
-    
-    return () => {
-      // Remove event listeners
-      scrollContainer.removeEventListener('wheel', handleWheel);
-      scrollContainer.removeEventListener('mousedown', handleTouchStart);
-      scrollContainer.removeEventListener('touchstart', handleTouchStart);
-      scrollContainer.removeEventListener('mousemove', handleTouchMove);
-      scrollContainer.removeEventListener('touchmove', handleTouchMove);
-      scrollContainer.removeEventListener('mouseup', handleTouchEnd);
-      scrollContainer.removeEventListener('touchend', handleTouchEnd);
-      scrollContainer.removeEventListener('mouseleave', handleTouchEnd);
-      scrollContainer.removeEventListener('scroll', updateActiveIndex);
-    };
-  }, [isDragging, startX]);
-
-  // Parallax effect for header text
-  useEffect(() => {
-    if (!containerRef.current || typeof window === 'undefined') return;
-    
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1,
+    containers.forEach(container => {
+      if (container) {
+        container.addEventListener('wheel', (evt) => handleWheel(container, evt), { passive: false });
       }
     });
     
-    tl.to(".header-text", {
-      y: 100,
-      opacity: 0,
-      ease: "power2.inOut"
-    });
-    
     return () => {
-      tl.kill();
+      containers.forEach(container => {
+        if (container) {
+          container.removeEventListener('wheel', (evt) => handleWheel(container, evt));
+        }
+      });
     };
   }, []);
 
-  // Animate items into view
-  useEffect(() => {
-    controls.start(i => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.8, ease: [0.6, 0.05, -0.01, 0.9] }
-    }));
-  }, [controls]);
-
-  // New carousel content with size and row information
-  const carouselContent = [
-    // First row
-    { 
-      title: "Nature",
-      description: "Lush green landscapes",
-      size: "small",
-      row: 1,
-      bgColor: "#1e6643",
-      bgImage: "url('/green-leaf.jpg')"
+  // First row carousel items
+  const firstRowItems = [
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBnTi9ObB6CKmdepWh5YemACNwr1geXV366evtU1rBMQ26a3WtqF0UivgRASZMa3mkvUwugbeafKgRCQWy5O1Z9E5ZFjYTuNWz3JgDOe6CyfTlOz0G7JhW83x91JQ-zhuZhlGOSnUv-zTYQBQdwLRYzgQ5g8dYOeR4w8tNAdf0cbS6j0V-dUYfpe7rTXRKyp-v_BS9bDc3xCitYWhmgMsbZIwSGdTOX17p-Rd9TYQIDmabc0juElRPJ7AvF-g0wycZpzvq3c1-i7K6K',
+      alt: 'Close-up of large green tropical leaves',
+      width: 'auto'
     },
-    { 
-      title: "Immersive Videos", 
-      description: "Interactive storytelling", 
-      size: "medium",
-      row: 1,
-      bgColor: "#4259a3",
-      bgImage: "url('/head-fishbowl.jpg')"
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqRdgaNO1FwUtfztaYm15aleqA6C8JGSiVSiP2nML9BXRjUX3xdsCcAq6Fcn47q4uphNqHgM6RNaGv3EQTRG87x6oqFhPTRpPF7QOl6HRH5Y3d5G7EOCLdYApMEAnNOG5sgwaVD_IqogOLGt2A5KsnpcwUV0HCIFFttaBOcqJX6S2hKpR-R0_8_72Z4Z30IFDdBwmQvksAn8iTaxEQUJ0oPu5R6O8iBE4dD6N4Dfc1Yi7QqtnBEuF31cVbTJ9jT3FrfA9NWaGnixpL',
+      alt: 'Woman with a goldfish bowl helmet',
+      width: 'auto'
     },
-    { 
-      title: "Silhouettes", 
-      description: "Dramatic contrasts", 
-      size: "large",
-      row: 1, 
-      bgColor: "#404347",
-      bgImage: "url('/person-fish.jpg')"
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA2G3qqjfSeGow42ageSW482tAYG9ChYH0xbY3xipZHysw5ss6k7-ae5Kt-q_jGrACeWomXJr--pVQCSkieSggAjYruaJGKWIRChHOk5RUAt9viVJz6DwF-eWp7w0cEkg0_qDKT6zuIOLELVeJJQFVvqxwR7Po4PelMljikMRldIBnVqqzljDitveBrBv3tKjHtUxyjVxH9hCAeqYrd37Zudh-c8Cm27QagMuL0seUuWMhMgjWwTFEH8JPCZElmDvPdNcPuDKGLmBSf',
+      alt: 'Silhouette of a man in an aquarium surrounded by sharks',
+      width: '400px',
+      maxWidth: '600px'
     },
-    { 
-      title: "Clouds", 
-      description: "Ethereal atmospheres", 
-      size: "small",
-      row: 1, 
-      bgColor: "#a7bbc5",
-      bgImage: "url('/clouds.jpg')"
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFFq1uv3hnPUf-yc0UGdKKxK4cKpC4rUgtvGuZ7RBoqpk0nvxn8Ey07AyZ6ETmhSibycKcKA6HyGVzDl6-4Z3A6IKcfwOhtTI086mhcN8CSlNW2dmDPue0Hfg6sWsY_3TsOM4yWxF_-y7A40lPcRznUfl6xdB0ULr4fhr7qi5a7LeYcDk7AGJx1e-60ITBgTCQT5zIHpwBsruhdkE8KSwNp5VwdRyACMbbcl-2eohJsgtIdVK7CRChrBn2hOfyDdsOw0Bko_qpWa-w',
+      alt: 'Person sitting among fluffy white clouds',
+      width: 'auto'
     },
-    { 
-      title: "Architecture", 
-      description: "Modern structures", 
-      size: "medium",
-      row: 1, 
-      bgColor: "#34495e",
-      bgImage: "url('/architecture.jpg')"
-    },
-    { 
-      title: "Ocean Views", 
-      description: "Calming seascapes", 
-      size: "large",
-      row: 1, 
-      bgColor: "#1a5276",
-      bgImage: "url('/ocean.jpg')"
-    },
-    // Second row
-    { 
-      title: "Pink Fluff", 
-      description: "Soft cotton candy aesthetics", 
-      size: "medium",
-      row: 2, 
-      bgColor: "#f9c5d1",
-      bgImage: "url('/pink-cats.jpg')"
-    },
-    { 
-      title: "Portraits", 
-      description: "Capturing human emotions", 
-      size: "small",
-      row: 2, 
-      bgColor: "#6a7d7f",
-      bgImage: "url('/profile-girl.jpg')"
-    },
-    { 
-      title: "Fashion", 
-      description: "Bold style statements", 
-      size: "large",
-      row: 2, 
-      bgColor: "#f2703c",
-      bgImage: "url('/yellow-hat.jpg')"
-    },
-    { 
-      title: "Meadows", 
-      description: "Peaceful countryside", 
-      size: "small",
-      row: 2, 
-      bgColor: "#7cad70",
-      bgImage: "url('/meadow.jpg')"
-    },
-    { 
-      title: "Urban Life", 
-      description: "City vibes and motion", 
-      size: "medium",
-      row: 2, 
-      bgColor: "#2c3e50",
-      bgImage: "url('/urban.jpg')"
-    },
-    { 
-      title: "Abstract", 
-      description: "Shapes and colors", 
-      size: "large",
-      row: 2, 
-      bgColor: "#8e44ad",
-      bgImage: "url('/abstract.jpg')"
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDQkKKAvpbcU89BahG62w2jKoweRLLQq3A_bMCLvdQLNvu626yb5_cq-0P87T2n9H6wmcKD9-OzhVMLcMMrSa9kGz27U3NzvtEz1oJe6lWjH-70C_ZiWTNqOXOE_XYRTGAHC-hqeav1viAeojGijgHT9tVPhDshwXFxKAzd4v0ljX2dH2Tco1iq3Y1khPEX-wgmPJZvgxFX2GT8adPaqPZ81Zksnx603G3Fgf0vmzybGsidY6_SC3ziwaqXcSHQPXbf2w9TW2Kak9zA',
+      alt: 'Lush green field with flowers',
+      width: 'auto'
     }
   ];
 
-  // Generate masonry grid carousel items
-  const renderCarouselItems = () => {
-    // Split by rows
-    const firstRow = carouselContent.filter(item => item.row === 1);
-    const secondRow = carouselContent.filter(item => item.row === 2);
-    
-    const generateItems = (items) => {
-      return items.map((item, i) => {
-        // Set dynamic widths based on item size - increasing widths to make more scrollable content
-        const getWidth = () => {
-          switch(item.size) {
-            case 'small': return 'w-[35vw] sm:w-[32vw] md:w-[28vw] lg:w-[25vw]';
-            case 'medium': return 'w-[45vw] sm:w-[42vw] md:w-[38vw] lg:w-[35vw]';
-            case 'large': return 'w-[60vw] sm:w-[55vw] md:w-[48vw] lg:w-[42vw]';
-            default: return 'w-[35vw] sm:w-[32vw] md:w-[28vw]';
-          }
-        };
-        
-        return (
-          <motion.div
-            key={`${item.row}-${i}`}
-            custom={i}
-            initial={{ opacity: 0, y: 30 }}
-            animate={controls}
-            className={`carousel-item flex-shrink-0 h-[32vh] rounded-xl relative overflow-hidden mx-3 ${getWidth()}`}
-            style={{
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
-              backgroundImage: item.bgImage || 'none',
-              backgroundColor: item.bgColor,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/60"></div>
-            
-            <div className="absolute bottom-0 left-0 w-full p-4 z-10">
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 + (i * 0.1), duration: 0.8 }}
-              >
-                <h3 className="text-xl sm:text-2xl font-bold text-white">{item.title}</h3>
-                <p className="text-white/80 text-sm sm:text-base">{item.description}</p>
-              </motion.div>
-            </div>
-          </motion.div>
-        );
-      });
-    };
-    
-    // Return both rows of items
-    return (
-      <div className="flex flex-col gap-6">
-        <div className="flex gap-3 items-center">{generateItems(firstRow)}</div>
-        <div className="flex gap-3 items-center">{generateItems(secondRow)}</div>
-      </div>
-    );
-  };
-
-  // Animation for the navigation dots
-  const dotVariants = {
-    inactive: { scale: 1, opacity: 0.5 },
-    active: { scale: 1.2, opacity: 1 }
-  };
+  // Second row carousel items
+  const secondRowItems = [
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBa1SD7x3iR6c7yme_DfzCL-mTLuGKYxbrgp57wGgaEzTrgWopqqQ0Il8eEtAf3MyOkoJeMw4lH_cgpuPNJbcsTN9cbsvPIcTNCJrHqVvUUPT6TuDrMVBDEHZLOW9lDHR1CgIDz9FcutImyl4E5G93ZcrHFfWa2yJtp-7zjpm5hahqmxIGaJvZr2rhKSImXVs8cGh-s0QlppfVtcorcUGzLWK55XvGQB34p1zW4crA69_0KiDMHsSwGGyqTV21K5Kxo0Q84Q8foHfqM',
+      alt: 'Woman with pink sunglasses and two fluffy white cats',
+      width: 'auto'
+    },
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDM7oO9Rqk6_KYa8NBAXVwPklLk_XPHTp0cCWQR7CxzVMloFk3-2rnuI-bMkSRo4grDLefCnVPV-v2koRWUVAMDf-ofOB1oLiCbvc5DwDR0WajuZ2L35Eps5xwygIprc2IrB0G6G_92RQ67XeAD0fbJ7UJv__xAkYI10IQzqiBvTW8CsM1FphP05gBA-mr7K9rXyNe5joNhPLFMzXpMZklyXEscImapGE3omJ-4-4-qeW1tZVC2zQVoqbYkPp7KzeKOr7hk5XCMMwSm',
+      alt: 'Woman looking up with soft lighting',
+      width: 'auto'
+    },
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYuwewZ8sToUbmQowdvDNFCafHsRa0SOozDTUByP1jiLDUMLOYkNKEWRfrkLah3nxiGcGP4bmB8ZJNBrlsb5PXoIGkuzPBYVXleR3GW-N1vquocU7_6-KrOTQg2Rgiy1l8hx9RHhMD263vP2qp1mrtKzBlNJRccCYOKlrXdbTdDioeGYWf_eR1h0VQXH2xWpPtJZANbL6_Eiik8jbRV4-mVSmPBWVFDbR3BiNt5tMkzPQPrF52D2w58fO8tR-kPUEjCRmyxdzlJaj7',
+      alt: 'Woman in a colorful puffer jacket holding flower props',
+      width: '400px',
+      maxWidth: '600px'
+    },
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBaZ0R2oirq472m7HvohhsLlF59RIxzsBEOLDWIiGOxYRFMUtCgFrXLcC3Xv1bGRw-pGVfgO-FI_jpB9C5bXq3KBCfCjEY6xCka6rqwNcfkpDgJ9Cpq10rdDpQJb5OijY8Ha3Zenq4qcUWz3ssml5ycjaagPjE3GPjsPrF7lCITcs4Xg5UE8r9AlhwMdCjg977yQCxF5E6Phixrd6etqXBYRhUfw-hfrcPbraqZiEubY0B0x8BHcJ036AZcg8IqoyfJqRwT7nODFCCI',
+      alt: 'Lush green field with flowers',
+      width: 'auto'
+    },
+    {
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBDKDSBslR7OaqUvCViEDUMvPpyBLrl0Un3lI_osVTcTcnoKslaAMAWVn-qT5LLPydFcOlry7LyPKbJh6xlgD2avobvwK2MLkRMq7EoUwbiPh3AqvPhnzts9iSeggq88g4TRbnxJj7R1lbbCNuteuAmUwgvhtiwmKk6819ecikJJcnA660YNtY2b-aYwvcoKXElmNRBS-Jz4AJPRXnwzqwwsXztvbCGPcZR-xhiy3obo0EikXOwYdTav6aV04Es6ZwiRMejeV7UhItW',
+      alt: 'Close-up of large green tropical leaves',
+      width: 'auto'
+    }
+  ];
 
   return (
-    <div className="bg-black text-white" ref={containerRef}>
+    <div className="bg-gray-100 text-gray-800 font-sans" ref={containerRef}>
       <Head>
         <title>OWLY | Creative Studio</title>
         <meta name="description" content="Transforming ideas into visual experiences" />
         <link rel="icon" href="/favicon.ico" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
       </Head>
 
       {/* Mouse Trailer */}
-      <div ref={mouseTrailerRef} className="mouse-trailer hidden md:block"></div>
-
-      {/* Grain Overlay */}
-      <div className="grain-overlay"></div>
+      <div 
+        ref={mouseTrailerRef} 
+        className="hidden md:block pointer-events-none fixed w-10 h-10 rounded-full bg-white/10 mix-blend-difference z-50"
+        style={{ transform: 'translate(-50%, -50%)', transition: 'width 0.3s, height 0.3s, opacity 0.3s' }}
+      ></div>
 
       {/* Navigation */}
-      <motion.nav 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.6, 0.05, -0.01, 0.9] }}
-        className="fixed top-0 left-0 right-0 z-50 px-8 py-6 flex justify-between items-center"
-      >
-        <motion.div 
-          whileHover={{ scale: 1.05 }}
-          className="text-3xl font-bold tracking-tighter"
-        >
-          OWLY
-        </motion.div>
-        <div className="flex items-center space-x-3">
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="py-2 px-8 rounded-full bg-white text-black font-semibold"
-          >
-            JOIN
-          </motion.button>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="py-2 px-8 rounded-full border border-white/20 font-semibold"
-          >
-            WAITLIST
-          </motion.button>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">OWLY</h1>
+          <div className="flex items-center space-x-2">
+            <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2">JOIN</button>
+            <button className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2">WAITLIST</button>
+          </div>
         </div>
-      </motion.nav>
+      </header>
 
-      {/* Hero Section with Masonry Grid Carousel */}
-      <section className="relative">
-        {/* Horizontal Masonry Grid Carousel */}
-        <div 
-          ref={carouselRef}
-          className="overflow-x-auto hide-scrollbar px-6 py-4 cursor-grab active:cursor-grabbing"
-          style={{ 
-            scrollSnapType: 'x mandatory', 
-            WebkitOverflowScrolling: 'touch',
-            scrollBehavior: 'smooth'
-          }}
-        >
-          {renderCarouselItems()}
-        </div>
-        
-        {/* Navigation Dots */}
-        <div className="flex justify-center space-x-3 mt-6 mb-10">
-          {Array.from({ length: Math.ceil(carouselContent.length / 4) }).map((_, i) => (
-            <motion.button
-              key={i}
-              variants={dotVariants}
-              initial="inactive"
-              animate={activeIndex === i ? "active" : "inactive"}
-              className={`w-4 h-4 rounded-full ${activeIndex === i ? 'bg-white' : 'bg-white/30'}`}
-              onClick={() => {
-                if (carouselRef.current) {
-                  const scrollWidth = carouselRef.current.scrollWidth;
-                  const viewportWidth = carouselRef.current.clientWidth;
-                  const scrollableWidth = scrollWidth - viewportWidth;
-                  const segmentWidth = scrollableWidth / (Math.ceil(carouselContent.length / 4) - 1 || 1);
-                  
-                  carouselRef.current.scrollTo({
-                    left: i * segmentWidth,
-                    behavior: 'smooth'
-                  });
-                }
-              }}
-            />
-          ))}
-        </div>
-        
-        {/* Vertical Scroll Indicator */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.8 }}
-          className="absolute left-1/2 bottom-2 transform -translate-x-1/2 flex flex-col items-center text-white/40 cursor-pointer"
-          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-        >
-          <span className="text-sm mb-1">Scroll Down</span>
-          <svg 
-            className="animate-bounce" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
+      {/* Main Content */}
+      <main className="pt-20">
+        {/* First Carousel */}
+        <div className="py-8">
+          <div 
+            ref={firstCarouselRef}
+            className="flex overflow-x-auto pl-4 sm:pl-6 lg:pl-8 scrollbar-hide" 
+            style={{ 
+              scrollBehavior: 'smooth', 
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
           >
-            <path 
-              d="M12 4L12 20M12 20L18 14M12 20L6 14" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        </motion.div>
-      </section>
+            {firstRowItems.map((item, index) => (
+              <div 
+                key={`first-${index}`} 
+                className="flex-none mr-4 rounded-xl overflow-hidden"
+                style={{ 
+                  width: item.width,
+                  minWidth: item.width === 'auto' ? '250px' : item.width,
+                  maxWidth: item.maxWidth,
+                  height: '16rem',
+                  transition: 'transform 0.3s ease'
+                }}
+              >
+                <img 
+                  src={item.image} 
+                  alt={item.alt} 
+                  className="w-full h-full object-cover"
+                  style={{ transition: 'transform 0.3s ease' }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Second Carousel */}
+        <div className="pb-8">
+          <div 
+            ref={secondCarouselRef}
+            className="flex overflow-x-auto pl-4 sm:pl-6 lg:pl-8 scrollbar-hide" 
+            style={{ 
+              scrollBehavior: 'smooth', 
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
+            {secondRowItems.map((item, index) => (
+              <div 
+                key={`second-${index}`} 
+                className="flex-none mr-4 rounded-xl overflow-hidden"
+                style={{ 
+                  width: item.width,
+                  minWidth: item.width === 'auto' ? '250px' : item.width,
+                  maxWidth: item.maxWidth,
+                  height: '20rem',
+                  transition: 'transform 0.3s ease'
+                }}
+              >
+                <img 
+                  src={item.image} 
+                  alt={item.alt} 
+                  className="w-full h-full object-cover"
+                  style={{ transition: 'transform 0.3s ease' }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      {/* Additional CSS for hiding scrollbars */}
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };
