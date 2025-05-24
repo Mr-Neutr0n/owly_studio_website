@@ -296,7 +296,6 @@ const App = () => {
             custom={i}
             initial={{ opacity: 0, y: 30 }}
             animate={controls}
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
             className={`carousel-item flex-shrink-0 h-[32vh] rounded-xl relative overflow-hidden mx-2 ${getWidth()}`}
             style={{
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
