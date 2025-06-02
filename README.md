@@ -4,13 +4,7 @@ A modern, interactive website for Owly Studio featuring a horizontal carousel sh
 
 ## Overview
 
-This website showcases Owly Studio's AI-powered video creation capabilities with a sleek, modern interface that includes:
-
-- Horizontal scrolling carousel with smooth animations
-- Interactive UI elements with visual feedback
-- Gradient text and background effects
-- Mouse trailer effects and subtle grain overlay for visual depth
-- Fully responsive design for all device sizes
+This project is a fresh start for the Owly Studio website, which will showcase AI-powered video creation capabilities with a sleek, modern interface.
 
 ## Getting Started
 
@@ -43,73 +37,18 @@ yarn dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-## Project Structure
+## Project Vision
 
-```
-owly_studio_website/
-├── components/         # React components
-│   └── App.js          # Main application component
-├── pages/              # Next.js pages
-│   ├── _app.js         # Custom App component with global styles
-│   └── index.js        # Home page
-├── public/             # Static assets
-├── styles/             # CSS styles
-│   └── globals.css     # Global styles and utilities
-├── .gitignore          # Git ignore file
-├── package.json        # Project dependencies and scripts
-├── postcss.config.js   # PostCSS configuration
-├── tailwind.config.js  # Tailwind CSS configuration
-└── README.md           # Project documentation
-```
+- Modern, interactive UI with smooth animations
+- Horizontal scrolling carousel for portfolio showcase
+- Responsive design for all device sizes
+- Clean architecture and maintainable codebase
 
-## Technologies Used
+## Technologies
 
 - [Next.js](https://nextjs.org/) - React framework
 - [Framer Motion](https://www.framer.com/motion/) - Animation library
-- [GSAP](https://greensock.com/gsap/) - Advanced animations
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-
-## TODO List
-
-### Design Tasks
-- [ ] Replace placeholder carousel items with actual images/videos
-- [ ] Finalize color scheme and typography
-- [ ] Create logo and favicon
-- [ ] Design additional UI elements (buttons, inputs, etc.)
-
-### Development Tasks
-- [ ] Build "About" section below the hero carousel
-- [ ] Implement "Features" section with animations
-- [ ] Create contact form with validation
-- [ ] Add modal for the waitlist/sign-up functionality
-- [ ] Implement smooth scroll between sections
-
-### Performance & Accessibility
-- [ ] Add keyboard navigation for carousel
-- [ ] Optimize images and videos
-- [ ] Implement lazy loading for media
-- [ ] Add proper meta tags for SEO
-- [ ] Test and optimize for performance (Lighthouse score >90)
-
-### Backend Integration
-- [ ] Set up API routes for form submissions
-- [ ] Connect to a database for waitlist storage
-- [ ] Add authentication for admin section
-- [ ] Implement analytics tracking
-
-### Deployment
-- [ ] Configure CI/CD pipeline
-- [ ] Set up production environment
-- [ ] Configure custom domain
-- [ ] Add SSL certificate
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 
