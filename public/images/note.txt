@@ -1,0 +1,6 @@
+This project now uses a video background instead of separate images.
+
+Current placeholder video:
+https://assets.mixkit.co/videos/preview/mixkit-silhouette-of-person-with-sharks-swimming-32825-large.mp4
+
+Replace this with your actual S3/CDN video link when ready. 

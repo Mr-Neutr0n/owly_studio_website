@@ -1,55 +1,64 @@
 # Owly Studio Website
 
-A modern, interactive website for Owly Studio featuring a horizontal carousel showcase and modern UI/UX features.
+A modern, interactive website for Owly Studio featuring an underwater theme with sharks and a waitlist signup form.
 
-## Overview
+## Preview
 
-This project is a fresh start for the Owly Studio website, which will showcase AI-powered video creation capabilities with a sleek, modern interface.
+The website features:
+- An underwater theme with sharks in the background
+- A silhouette figure standing among the sharks
+- The OWLY logo in the top left corner
+- A JOIN WAITLIST button in the top right corner
+- A waitlist signup form page
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 14.x or higher
+- Node.js (latest LTS version recommended)
 - npm or yarn
 
 ### Installation
 
 1. Clone the repository:
-```bash
-git clone <repository-url>
-cd owly_studio_website
-```
+   ```bash
+   git clone https://github.com/Mr-Neutr0n/owly_studio_website.git
+   cd owly_studio_website
+   ```
 
 2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-3. Run the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
+3. Add the required images to the `public/images` directory:
+   - `owly-logo.png` - The OWLY logo for the top left corner
+   - `underwater-sharks.jpg` - The underwater scene with sharks background
+   - `silhouette.png` - The silhouette of the person standing among sharks
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+4. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-## Project Vision
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-- Modern, interactive UI with smooth animations
-- Horizontal scrolling carousel for portfolio showcase
-- Responsive design for all device sizes
-- Clean architecture and maintainable codebase
+## Technologies Used
 
-## Technologies
+- [Next.js](https://nextjs.org/) - The React framework
+- [TailwindCSS](https://tailwindcss.com/) - For styling
+- [Framer Motion](https://www.framer.com/motion/) - For animations
 
-- [Next.js](https://nextjs.org/) - React framework
-- [Framer Motion](https://www.framer.com/motion/) - Animation library
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+## Project Structure
 
-## License
+- `/app` - Next.js app router pages and components
+- `/public/images` - Static images used in the website
+- `/components` - Reusable React components
 
-This project is proprietary and confidential. 
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. 
